@@ -19,7 +19,11 @@ Clone o repositório para sua máquina local usando o comando:
 git clone https://github.com/robdig7x/apipay.git
 cd apipay
 
-mvn clean install
+#(linux)
+./mvnw clean install
+#(windows)
+mvnw.cmd clean install
+
 docker-compose up --build
 ```
 
