@@ -1,0 +1,9 @@
+package com.robdig7x.apipay.domain.repository;
+
+import com.robdig7x.apipay.domain.model.entity.Users;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<Users, Long> {
+    Optional<Users> findByUsername(String username);
+}
