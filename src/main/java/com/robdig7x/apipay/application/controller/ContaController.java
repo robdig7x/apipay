@@ -3,6 +3,7 @@ package com.robdig7x.apipay.application.controller;
 import com.robdig7x.apipay.domain.model.dto.ContaDTO;
 import com.robdig7x.apipay.domain.model.entity.Conta;
 import com.robdig7x.apipay.domain.service.ContaService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/contas")
+@SecurityRequirement(name = "apipay")
 public class ContaController {
 
     @Autowired
@@ -56,6 +58,12 @@ public class ContaController {
     @GetMapping("/total-pago")
     public ResponseEntity<BigDecimal> getTotalPaidByPeriod(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         return ResponseEntity.ok(contaService.findTotalPaidByPeriod(startDate, endDate));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteConta(@PathVariable Long id) {
+        contaService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/import")

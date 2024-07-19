@@ -1,28 +1,29 @@
 package com.robdig7x.apipay.infrastructure.configuration;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import io.swagger.v3.oas.models.info.Info;
-import org.springdoc.core.GroupedOpenApi;
+import org.springframework.boot.context.event.ApplicationPreparedEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.stereotype.Component;
 
-@Configuration
-public class SwaggerConfig {
+import java.util.Properties;
 
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Bill Payer API")
-                        .version("1.0")
-                        .description("API for managing bill payments"));
+@Component
+public class SwaggerConfig implements ApplicationListener<ApplicationPreparedEvent> {
+
+    @Override
+    public void onApplicationEvent(final ApplicationPreparedEvent event) {
+        ConfigurableEnvironment env = event.getApplicationContext().getEnvironment();
+        Properties props = new Properties();
+        props.put("springdoc.swagger-ui.path", "swagger");
+        props.put("springdoc.swagger-ui.path", "/v3/api-docs");
+
+        env.getPropertySources()
+                .addFirst(new PropertiesPropertySource("programmatically", props));
     }
 
-    @Bean
-    public GroupedOpenApi publicApi() {
-        return GroupedOpenApi.builder()
-                .group("public")
-                .pathsToMatch("/api/**")
-                .build();
+    @Override
+    public boolean supportsAsyncExecution() {
+        return ApplicationListener.super.supportsAsyncExecution();
     }
 }

@@ -18,7 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ContaServiceTest {
 
@@ -90,5 +90,14 @@ public class ContaServiceTest {
         when(contaRepository.findById(1L)).thenReturn(Optional.of(conta));
 
         assertDoesNotThrow(() -> contaService.delete(1L));
+    }
+
+    @Test
+    public void deleteConta_shouldCallRepositoryDeleteById() {
+        Long contaId = 1L;
+
+        contaService.delete(contaId);
+
+        verify(contaRepository, times(1)).deleteById(contaId);
     }
 }

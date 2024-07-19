@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robdig7x.apipay.domain.model.dto.ContaDTO;
 import com.robdig7x.apipay.domain.model.entity.Conta;
 import com.robdig7x.apipay.domain.service.ContaService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -14,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,6 +28,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -140,17 +145,10 @@ public class ContaControllerTest {
         mockMvc.perform(delete("/api/contas/1"))
                 .andExpect(status().isNoContent());
     }
-}
-*/
-//@WebMvcTest(ContaController.class)
+} */
+@WebMvcTest(ContaController.class)
 public class ContaControllerTest {
 
-    @Test
-    public void testee() {
-        assertNotNull("Não implementado ainda.");
-    }
-
-    /*
     @Autowired
     private MockMvc mockMvc;
 
@@ -159,6 +157,14 @@ public class ContaControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    @BeforeEach()
+    public void setup() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+    }
 
     @Test
     public void testCreateConta() throws Exception {
@@ -171,17 +177,18 @@ public class ContaControllerTest {
 
         mockMvc.perform(post("/api/contas")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(contaDTO)))
+                        .content(objectMapper.writeValueAsString(contaDTO))
+                        .with(csrf()))
                 .andExpect(status().isCreated());
     }
 
     @Test
     public void testGetAllContas() throws Exception {
         Page<Conta> conta = new PageImpl(List.of(new Conta()));
-        when(contaService.findAllByDateAndDescription(any(), any(), any(), any(), any()))
+        when(contaService.findAllByDateAndDescription(Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt()))
                 .thenReturn(conta);
 
-        mockMvc.perform(get("/api/contas"))
+        mockMvc.perform(get("/api/contas?page=0&size=10&startDate=2024-06-10&endDate=2024-07-30&descricao=Conta").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
@@ -215,9 +222,13 @@ public class ContaControllerTest {
     }
 
     @Test
-    public void testDeleteConta() throws Exception {
-        mockMvc.perform(delete("/api/contas/1"))
+    public void deleteConta_shouldReturnNoContent() throws Exception {
+        Long contaId = 1L;
+
+        mockMvc.perform(delete("/api/contas/{id}", contaId))
                 .andExpect(status().isNoContent());
+
+        Mockito.verify(contaService, Mockito.times(1)).delete(contaId);
     }
-*/
+
 }
